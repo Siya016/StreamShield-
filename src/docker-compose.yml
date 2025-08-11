@@ -1,0 +1,333 @@
+#version: '3'
+#
+#services:
+#  zookeeper:
+#    image: confluentinc/cp-zookeeper:7.5.0
+#    container_name: zookeeper
+#    ports:
+#      - "2181:2181"
+#    environment:
+#      ZOOKEEPER_CLIENT_PORT: 2181
+#    networks:
+#      - code-with-yu
+#
+#  kafka:
+#      image: confluentinc/cp-kafka:7.5.0
+#      container_name: kafka
+#      ports:
+#        - "9092:9092"
+#      depends_on:
+#        - zookeeper
+#      environment:
+#        KAFKA_BROKER_ID: 1
+#        KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+#        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+#        KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+#        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#      networks:
+#        - code-with-yu
+#
+#  spark-master:
+#    container_name: spark-master
+#    hostname: spark-master
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.spark
+#    command: bin/spark-class org.apache.spark.deploy.master.Master
+#    volumes:
+#      - ./config:/opt/bitnami/spark/config
+#      - ./jobs:/opt/bitnami/spark/jobs
+#      - ./datasets:/opt/bitnami/spark/datasets
+#      - ./requirements.txt:/requirements.txt
+#    ports:
+#      - "9090:8080"
+#      - "7077:7077"
+#    networks:
+#      - code-with-yu
+#
+#  spark-worker: &worker
+#    container_name: spark-worker
+#    hostname: spark-worker
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.spark
+#    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+#    volumes:
+#      - ./config:/opt/bitnami/spark/config
+#      - ./jobs:/opt/bitnami/spark/jobs
+#      - ./datasets:/opt/bitnami/spark/datasets
+#      - ./requirements.txt:/requirements.txt
+#    depends_on:
+#      - spark-master
+#    environment:
+#      SPARK_MODE: worker
+#      SPARK_WORKER_CORES: 2
+#      SPARK_WORKER_MEMORY: 1g
+#      SPARK_MASTER_URL: spark://spark-master:7077
+#    networks:
+#      - code-with-yu
+#
+##  spark-worker-2:
+##    <<: *worker
+##
+##  spark-worker-3:
+##    <<: *worker
+##
+##  spark-worker-4:
+##    <<: *worker
+#networks:
+#  code-with-yu:
+#
+
+#version: '3.9'
+#
+#services:
+#  zookeeper:
+#    image: confluentinc/cp-zookeeper:7.5.0
+#    container_name: zookeeper
+#    ports:
+#      - "2181:2181"
+#    environment:
+#      ZOOKEEPER_CLIENT_PORT: 2181
+#    networks:
+#      - code-with-yu
+#
+#  kafka:
+#    image: confluentinc/cp-kafka:7.5.0
+#    container_name: kafka
+#    ports:
+#      - "9092:9092"
+#    depends_on:
+#      - zookeeper
+#    environment:
+#      KAFKA_BROKER_ID: 1
+#      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+#      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+#      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+#      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+#    networks:
+#      - code-with-yu
+#
+#  spark-master:
+#    container_name: spark-master
+#    hostname: spark-master
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.spark
+#    command: bin/spark-class org.apache.spark.deploy.master.Master
+#    volumes:
+#      - ./config:/opt/bitnami/spark/config
+#      - ./jobs:/opt/bitnami/spark/jobs
+#      - ./datasets:/opt/bitnami/spark/datasets
+#      - ./requirements.txt:/requirements.txt
+#
+#    ports:
+#      - "9090:8080"     # Spark Web UI
+#      - "7077:7077"     # Spark Master port
+#    networks:
+#      - code-with-yu
+#
+#  spark-worker: &worker
+#    container_name: spark-worker
+#    hostname: spark-worker
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.spark
+#    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+#    volumes:
+#      - ./config:/opt/bitnami/spark/config
+#      - ./jobs:/opt/bitnami/spark/jobs
+#      - ./datasets:/opt/bitnami/spark/datasets
+#      - ./requirements.txt:/requirements.txt
+#    depends_on:
+#      - spark-master
+#    environment:
+#      SPARK_MODE: worker
+#      SPARK_WORKER_CORES: 2
+#      SPARK_WORKER_MEMORY: 1g
+#      SPARK_MASTER_URL: spark://spark-master:7077
+#    networks:
+#      - code-with-yu
+#
+#  #  spark-worker-2:
+#  #    <<: *worker
+#  #
+#  #  spark-worker-3:
+#  #    <<: *worker
+#  #
+#  #  spark-worker-4:
+#  #    <<: *worker
+#networks:
+#   code-with-yu:
+
+
+
+
+version: '3.9'
+
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - code-with-yu
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - code-with-yu
+
+  spark-master:
+    container_name: spark-master
+    hostname: spark-master
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
+    command: bin/spark-class org.apache.spark.deploy.master.Master
+    volumes:
+      - ./config:/opt/bitnami/spark/config
+      - ./jobs:/opt/bitnami/spark/jobs
+      - ./datasets:/opt/bitnami/spark/datasets
+      - ./requirements.txt:/requirements.txt
+
+    ports:
+      - "9090:8080"     # Spark Web UI
+      - "7077:7077"     # Spark Master port
+    networks:
+      - code-with-yu
+
+  spark-worker: &worker
+    container_name: spark-worker
+    hostname: spark-worker
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
+    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    volumes:
+      - ./config:/opt/bitnami/spark/config
+      - ./jobs:/opt/bitnami/spark/jobs
+      - ./datasets:/opt/bitnami/spark/datasets
+      - ./requirements.txt:/requirements.txt
+    depends_on:
+      - spark-master
+    environment:
+      SPARK_MODE: worker
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 1g
+      SPARK_MASTER_URL: spark://spark-master:7077
+    networks:
+      - code-with-yu
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    networks:
+      - code-with-yu
+
+  kibana:
+      image: docker.elastic.co/kibana/kibana:8.13.4
+      container_name: kibana
+      ports:
+        - "5601:5601"
+      depends_on:
+        - elasticsearch
+      environment:
+        - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      networks:
+        - code-with-yu
+
+  kafka-connect:
+        image: confluentinc/cp-kafka-connect:7.5.0
+        container_name: kafka-connect
+        depends_on:
+          - kafka
+          - elasticsearch
+        ports:
+          - "8083:8083"
+        environment:
+          CONNECT_BOOTSTRAP_SERVERS: kafka:9092
+          CONNECT_REST_PORT: 8083
+          CONNECT_GROUP_ID: "kafka-connect-group"
+          CONNECT_CONFIG_STORAGE_TOPIC: connect-configs
+          CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+          CONNECT_OFFSET_STORAGE_TOPIC: connect-offsets
+          CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+          CONNECT_STATUS_STORAGE_TOPIC: connect-status
+          CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+          CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
+          CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+          CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: false
+          CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: false
+          CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+          CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+          CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
+          CONNECT_PLUGIN_PATH: /usr/share/java,/etc/kafka-connect/jars,/connectors
+        volumes:
+          - ./connectors:/connectors
+        networks:
+          - code-with-yu
+
+#  kafka-connect:
+#      image: confluentinc/cp-kafka-connect:7.5.0
+#      container_name: kafka-connect
+#      depends_on:
+#        - kafka
+#        - elasticsearch
+#      ports:
+#        - "8083:8083"
+#      environment:
+#        CONNECT_BOOTSTRAP_SERVERS: kafka:9092
+#        CONNECT_REST_PORT: 8083
+#        CONNECT_GROUP_ID: "kafka-connect-group"
+#        CONNECT_CONFIG_STORAGE_TOPIC: connect-configs
+#        CONNECT_OFFSET_STORAGE_TOPIC: connect-offsets
+#        CONNECT_STATUS_STORAGE_TOPIC: connect-status
+#        CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
+#        CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+#        CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: false
+#        CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: false
+#        CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+#        CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+#        CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
+#        CONNECT_PLUGIN_PATH: /usr/share/java,/etc/kafka-connect/jars
+#      volumes:
+#        - ./connectors:/connectors
+#      networks:
+#        - code-with-yu
+
+
+
+
+  #  spark-worker-2:
+  #    <<: *worker
+  #
+  #  spark-worker-3:
+  #    <<: *worker
+  #
+  #  spark-worker-4:
+  #    <<: *worker
+networks:
+   code-with-yu:
+
+
